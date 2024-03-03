@@ -1,42 +1,39 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SeafoodSQLCommands
 {
     public class DatabaseHelper
     {
-        public void ConnectToDatabase(SqlConnection connection, string query)
+        DataProcessor dataProcessor = new DataProcessor();
+        public void ConnectToDatabase(SqlConnection connection)
         {
             connection.Open();
-            ExecuteQuery(query, connection);
         }
 
-        public List<string> ExecuteQuery(string query, SqlConnection connection) 
+        public List<Dictionary<string, object>> ExecuteQuery(string query, SqlConnection connection, bool printResults) 
         {
-            List<string> results = new List<string>();
+            List<Dictionary<string, object>> results = new List<Dictionary<string, object>>();
 
             using (SqlCommand command = new SqlCommand(query, connection))
             {
                 using (SqlDataReader reader = command.ExecuteReader())
                 {
-                    if (reader.HasRows)
+                    while (reader.Read()) 
                     {
-                        while (reader.Read())
+                        var row = new Dictionary<string, object>();
+                        for (int i = 0; i < reader.FieldCount; i++) 
                         {
-                            string data = reader.GetString(0);
-                            results.Add(data);
+                            row[reader.GetName(i)] = reader.GetValue(i);    
                         }
-                    }
-                    else
-                    {
-                        Console.WriteLine("No Data Found. Reader was empty.");
+                        results.Add(row);
                     }
                 }
+            }
+
+            if (printResults)
+            {
+                dataProcessor.PrintResults(results);
             }
 
             return results;
