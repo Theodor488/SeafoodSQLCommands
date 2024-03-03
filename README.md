@@ -1,7 +1,7 @@
-Seafood SQL Commands
+<h1>Seafood SQL Commands</h1>
 Seafood SQL Commands is a C# console application that provides functionality to interact with a SQL database containing information about various seafood species and their catches.
 
-Overview
+<h1>Overview</h1>
 This project consists of several components:
 
 DatabaseHelper: A class responsible for establishing connections to the SQL database and executing queries.
