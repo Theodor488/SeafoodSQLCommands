@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,33 +9,33 @@ namespace SeafoodSQLCommands
 {
     public class UserInputHelper
     {
-        public string RunChosenQuery(QueryCommandsManager queryCommandsManager, string choice, Dictionary<string, string> speciesNamesAndIDs)
+        public SqlCommand RunChosenQuery(QueryCommandsManager queryCommandsManager, string choice, Dictionary<string, string> speciesNamesAndIDs, SqlConnection connection)
         {
-            string query = "";
+            SqlCommand command = new SqlCommand();
 
             switch (choice)
             {
                 case "0":
-                    query = queryCommandsManager.GetAllSpeciesNamesAndIds();
+                    command = queryCommandsManager.GetAllSpeciesNamesAndIds(connection);
                     break;
                 case "1":
-                    query = queryCommandsManager.GetAllSpecies();
+                    command = queryCommandsManager.GetAllSpecies(connection);
                     break;
                 case "2":
-                    query = queryCommandsManager.GetSpeciesById(GetSpeciesIdFromUser());
+                    command = queryCommandsManager.GetSpeciesById(GetSpeciesIdFromUser(), connection);
                     break;
                 case "3":
-                    query = queryCommandsManager.GetAllSpeciesFullCatchInfo();
+                    command = queryCommandsManager.GetAllSpeciesFullCatchInfo(connection);
                     break;
                 case "4":
-                    query = queryCommandsManager.GetAllSpeciesFullCatchInfoByName(GetSpeciesNameFromUser());
+                    command = queryCommandsManager.GetAllSpeciesFullCatchInfoByName(GetSpeciesNameFromUser(), connection);
                     break;
                 case "5":
-                    query = queryCommandsManager.GetSpecificInfoForSpecies(GetSpeciesNameFromUser(), GetSpeciesColumnFromUser(), speciesNamesAndIDs);
+                    command = queryCommandsManager.GetSpecificInfoForSpecies(GetSpeciesNameFromUser(), GetSpeciesColumnFromUser(), speciesNamesAndIDs, connection);
                     break;
             }
 
-            return query;
+            return command;
         }
 
         public string ChooseQueryToRun()

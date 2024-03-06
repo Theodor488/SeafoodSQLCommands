@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,6 +33,16 @@ namespace SeafoodSQLCommands
             }
 
             return dictResults;
+        }
+
+        public Dictionary<string, string> GenerateSpeciesNamesAndIDs(QueryCommandsManager queryCommandsManager, DatabaseHelper databaseHelper, DataProcessor dataProcessor, SqlConnection connection)
+        {
+            SqlCommand speciesNamesAndIDsQuery = queryCommandsManager.GetAllSpeciesNamesAndIds(connection);
+
+            // Get Species Names and IDs --> convert to dictionary
+            List<Dictionary<string, object>> speciesNamesAndIDs_RawData = databaseHelper.ExecuteQuery(speciesNamesAndIDsQuery, connection, false);
+            Dictionary<string, string> speciesNamesAndIDs = dataProcessor.ConvertNamesAndIDsToDictionary(speciesNamesAndIDs_RawData);
+            return speciesNamesAndIDs;
         }
     }
 }

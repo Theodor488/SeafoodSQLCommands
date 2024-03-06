@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Data.SqlClient;
 
 namespace SeafoodSQLCommands
 {
+
     public enum QueryOption
     {
         GetAllSpeciesNamesAndIds,
@@ -17,6 +19,7 @@ namespace SeafoodSQLCommands
     {
         static void Main(string[] args)
         {
+            
             string connectionString = "Data Source=THEO-COMPUTER\\SQLEXPRESS;Initial Catalog=SeafoodDB;Integrated Security=True";
 
             QueryCommandsManager queryCommandsManager = new QueryCommandsManager();
@@ -31,18 +34,15 @@ namespace SeafoodSQLCommands
                 {
                     databaseHelper.ConnectToDatabase(connection);
 
-                    string speciesNamesAndIDsQuery = queryCommandsManager.GetAllSpeciesNamesAndIds();
-
-                    // Get Species Names and IDs --> convert to dictionary
-                    List<Dictionary<string, object>> speciesNamesAndIDs_RawData = databaseHelper.ExecuteQuery(speciesNamesAndIDsQuery, connection, false);
-                    Dictionary<string, string> speciesNamesAndIDs = dataProcessor.ConvertNamesAndIDsToDictionary(speciesNamesAndIDs_RawData);
+                    // Map names to IDs
+                    Dictionary<string, string> speciesNamesAndIDs = dataProcessor.GenerateSpeciesNamesAndIDs(queryCommandsManager, databaseHelper, dataProcessor, connection);
 
                     // Choose and run query
                     string choice = userInputHelper.ChooseQueryToRun();
-                    string query = userInputHelper.RunChosenQuery(queryCommandsManager, choice, speciesNamesAndIDs);
+                    SqlCommand command = userInputHelper.RunChosenQuery(queryCommandsManager, choice, speciesNamesAndIDs, connection);
 
                     // Get results from query
-                    List<Dictionary<string, object>> queryResults = databaseHelper.ExecuteQuery(query, connection, true);
+                    List<Dictionary<string, object>> queryResults = databaseHelper.ExecuteQuery(command, connection, true);
                 }
             }
             catch (Exception ex)
@@ -50,5 +50,7 @@ namespace SeafoodSQLCommands
                 Console.WriteLine($"An error occurred: {ex.Message}");
             }
         }
+
+        
     }   
 }

@@ -1,49 +1,57 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Xml.Linq;
 
 namespace SeafoodSQLCommands
 {
     public class QueryCommandsManager
     {
-        public string GetAllSpeciesNamesAndIds()
+        public SqlCommand GetAllSpeciesNamesAndIds(SqlConnection connection)
         {
-            return "SELECT Name, SpeciesId\r\nFROM SpeciesTable species \r\n;";
+            SqlCommand command = new SqlCommand("SELECT Name, SpeciesId\r\nFROM SpeciesTable species \r\n;", connection);
+            return command;
         }
 
-        public string GetAllSpecies()
+        public SqlCommand GetAllSpecies(SqlConnection connection)
         {
-            return "SELECT Name FROM SpeciesTable";
+            SqlCommand command = new SqlCommand("SELECT Name FROM SpeciesTable", connection);
+            return command;
         }
 
-        public string GetSpeciesById(int speciesId)
+        public SqlCommand GetSpeciesById(int speciesId, SqlConnection connection)
         {
-            return $"SELECT Name FROM SpeciesTable WHERE SpeciesId = '{speciesId}'";
+            SqlCommand command = new SqlCommand($"SELECT Name FROM SpeciesTable WHERE SpeciesId = @speciesId", connection);
+            command.Parameters.AddWithValue("@speciesId", speciesId);
+            return command;
         }
 
-        public string GetAllSpeciesFullCatchInfo() 
+        public SqlCommand GetAllSpeciesFullCatchInfo(SqlConnection connection) 
         {
-            return "SELECT *\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nORDER BY species.Name DESC;";
+            SqlCommand command = new SqlCommand("SELECT *\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nORDER BY species.Name DESC;", connection);
+            return command;
         }
 
-        public string GetAllSpeciesFullCatchInfoByName(string name)
+        public SqlCommand GetAllSpeciesFullCatchInfoByName(string name, SqlConnection connection)
         {
-            string query;
+            SqlCommand command;
 
             if (int.TryParse(name, out var speciesId)) 
             {
-                query = $"SELECT *\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nWHERE species.SpeciesId = {speciesId}\r\nORDER BY species.Name DESC;";
+                command = new SqlCommand($"SELECT *\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nWHERE species.SpeciesId = @speciesId\r\nORDER BY species.Name DESC;", connection);
+                command.Parameters.AddWithValue("@speciesId", speciesId);
             }
             else
             {
-                query = $"SELECT *\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nWHERE species.Name = '{name}'\r\nORDER BY species.Name DESC;";
+                command = new SqlCommand($"SELECT *\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nWHERE species.Name = @name\r\nORDER BY species.Name DESC;", connection);
+                command.Parameters.AddWithValue("@name", name);
             }
 
-            return query;
+            return command;
         }
 
-        public string GetSpecificInfoForSpecies(string speciesName, string speciesColumn, Dictionary<string, string> speciesNamesAndIDs_RawData)
+        public SqlCommand GetSpecificInfoForSpecies(string speciesName, string speciesColumn, Dictionary<string, string> speciesNamesAndIDs_RawData, SqlConnection connection)
         {
-            string query;
+            SqlCommand command;
 
             if (int.TryParse(speciesName, out var speciesId))
             {
@@ -51,15 +59,19 @@ namespace SeafoodSQLCommands
                 speciesName = speciesNamesAndIDs_RawData[speciesId_string];
                 Console.WriteLine($"Species Name: {speciesName}");
 
-                query = $"SELECT {speciesColumn}\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nWHERE species.SpeciesId = {speciesId}\r\nORDER BY species.Name DESC;";
+                command = new SqlCommand("SELECT @speciesColumn\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nWHERE species.SpeciesId = @speciesId\r\nORDER BY species.Name DESC;", connection);
+                command.Parameters.AddWithValue("@speciesColumn", speciesColumn);
+                command.Parameters.AddWithValue("@speciesId", speciesId);
             }
             else
             {
                 Console.WriteLine($"Species Name: {speciesName}");
-                query = $"SELECT {speciesColumn}\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nWHERE species.Name = '{speciesName}'\r\nORDER BY species.Name DESC;";
+                command = new SqlCommand("SELECT @speciesColumn\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nWHERE species.Name = '@speciesName'\r\nORDER BY species.Name DESC;", connection);
+                command.Parameters.AddWithValue("@speciesColumn", speciesColumn);
+                command.Parameters.AddWithValue("@speciesName", speciesName);
             }
 
-            return query;
+            return command;
         }
     }
 }
