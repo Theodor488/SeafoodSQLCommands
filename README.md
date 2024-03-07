@@ -7,7 +7,6 @@ This project consists of several components:
 <h4>DatabaseHelper</h4> A class responsible for establishing connections to the SQL database and executing queries.
 <h4>QueryCommandsManager</h4> A class containing methods to generate SQL queries for retrieving species information and catch data.
 <h4>DataProcessor</h4> A class with methods for processing and displaying data retrieved from the database.
-<h4>Program</h4>: The entry point of the application, allowing users to select and execute different database queries.
 
 <h1>Features</h1>
 Retrieve Species Information: Get a list of all species, species names and IDs, or specific species by ID.
