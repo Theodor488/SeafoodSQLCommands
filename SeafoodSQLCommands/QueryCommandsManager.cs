@@ -59,16 +59,13 @@ namespace SeafoodSQLCommands
                 speciesName = speciesNamesAndIDs_RawData[speciesId_string];
                 Console.WriteLine($"Species Name: {speciesName}");
 
-                command = new SqlCommand("SELECT @speciesColumn\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nWHERE species.SpeciesId = @speciesId\r\nORDER BY species.Name DESC;", connection);
-                command.Parameters.AddWithValue("@speciesColumn", speciesColumn);
+                command = new SqlCommand($"SELECT {speciesColumn}\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nWHERE species.SpeciesId = '{speciesId}'\r\nORDER BY species.Name DESC;", connection);
                 command.Parameters.AddWithValue("@speciesId", speciesId);
             }
             else
             {
                 Console.WriteLine($"Species Name: {speciesName}");
-                command = new SqlCommand("SELECT @speciesColumn\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nWHERE species.Name = '@speciesName'\r\nORDER BY species.Name DESC;", connection);
-                command.Parameters.AddWithValue("@speciesColumn", speciesColumn);
-                command.Parameters.AddWithValue("@speciesName", speciesName);
+                command = new SqlCommand($"SELECT {speciesColumn}\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nWHERE species.Name = '{speciesName}'\r\nORDER BY species.Name DESC;", connection);
             }
 
             return command;

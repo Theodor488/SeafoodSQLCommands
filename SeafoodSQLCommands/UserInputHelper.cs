@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SeafoodSQLCommands
 {
     public class UserInputHelper
     {
-        public SqlCommand RunChosenQuery(QueryCommandsManager queryCommandsManager, string choice, Dictionary<string, string> speciesNamesAndIDs, SqlConnection connection)
+        public SqlCommand RunChosenQuery(QueryCommandsManager queryCommandsManager, string choice, Dictionary<string, string> speciesNamesAndIDs, List<string> allowedColumnsSection, SqlConnection connection)
         {
             SqlCommand command = new SqlCommand();
 
@@ -31,7 +28,7 @@ namespace SeafoodSQLCommands
                     command = queryCommandsManager.GetAllSpeciesFullCatchInfoByName(GetSpeciesNameFromUser(), connection);
                     break;
                 case "5":
-                    command = queryCommandsManager.GetSpecificInfoForSpecies(GetSpeciesNameFromUser(), GetSpeciesColumnFromUser(), speciesNamesAndIDs, connection);
+                    command = queryCommandsManager.GetSpecificInfoForSpecies(GetSpeciesNameFromUser(), GetSpeciesColumnFromUser(allowedColumnsSection), speciesNamesAndIDs, connection);
                     break;
             }
 
@@ -64,10 +61,29 @@ namespace SeafoodSQLCommands
             return Console.ReadLine();
         }
 
-        private static string GetSpeciesColumnFromUser()
+        private static string GetSpeciesColumnFromUser(List<string> allowedColumnsSection)
         {
-            Console.Write("Enter the species column: ");
-            return Console.ReadLine();
+            bool keepChoosing = true;
+
+            while (keepChoosing)
+            {
+                Console.Write("Enter the species column: ");
+                string columnChoice = Console.ReadLine();
+
+                // Limiting column choices to allowedColumnsSection protects against SQL Injection Attacks
+                if (allowedColumnsSection.Contains(columnChoice))
+                {
+                    keepChoosing = false;
+                    return columnChoice;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid column choice. Choose a column from the list of allowed columns: ");
+                    Console.WriteLine(string.Format("Allowed Columns: ({0}).", string.Join(", ", allowedColumnsSection)));
+                }
+            }
+
+            return string.Empty;
         }
     }
 }

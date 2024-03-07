@@ -4,7 +4,6 @@ using System.Data.SqlClient;
 
 namespace SeafoodSQLCommands
 {
-
     public enum QueryOption
     {
         GetAllSpeciesNamesAndIds,
@@ -19,8 +18,14 @@ namespace SeafoodSQLCommands
     {
         static void Main(string[] args)
         {
-            
-            string connectionString = "Data Source=THEO-COMPUTER\\SQLEXPRESS;Initial Catalog=SeafoodDB;Integrated Security=True";
+            var builder = new ConfigurationBuilder()
+                            .SetBasePath(Directory.GetCurrentDirectory())
+                            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+            IConfigurationRoot configuration = builder.Build();
+
+            List<string> allowedColumnsSection = configuration.GetSection("AllowedColumns:Catches").Get<List<string>>();
+            string connectionString = configuration.GetSection("ConnectionStrings:SeafoodDBConnection").Get<string>();
 
             QueryCommandsManager queryCommandsManager = new QueryCommandsManager();
             DatabaseHelper databaseHelper = new DatabaseHelper();
@@ -39,7 +44,7 @@ namespace SeafoodSQLCommands
 
                     // Choose and run query
                     string choice = userInputHelper.ChooseQueryToRun();
-                    SqlCommand command = userInputHelper.RunChosenQuery(queryCommandsManager, choice, speciesNamesAndIDs, connection);
+                    SqlCommand command = userInputHelper.RunChosenQuery(queryCommandsManager, choice, speciesNamesAndIDs, allowedColumnsSection, connection);
 
                     // Get results from query
                     List<Dictionary<string, object>> queryResults = databaseHelper.ExecuteQuery(command, connection, true);
@@ -50,7 +55,5 @@ namespace SeafoodSQLCommands
                 Console.WriteLine($"An error occurred: {ex.Message}");
             }
         }
-
-        
     }   
 }
