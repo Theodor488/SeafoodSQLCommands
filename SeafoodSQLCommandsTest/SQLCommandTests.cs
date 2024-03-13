@@ -1,30 +1,55 @@
 using Xunit;
 using System.Data.SqlClient; 
-using Moq;  
+using Moq;
+using SeafoodSQLCommands;
 
-public class SQLCommandTests
+namespace SeafoodSQLCommands
 {
-    string connectionString = "Data Source=THEO-COMPUTER\\SQLEXPRESS;Initial Catalog=SeafoodDB;Integrated Security=True";
-
-    [Theory]
-    [InlineData("SELECT Remarks\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nWHERE species.Name = 'Tuna'\r\nORDER BY species.Name DESC;", true)] 
-    public void TestSqlCommandOutput(string queryString, bool hasOutput)
+    public class SQLCommandTests
     {
-        using (SqlConnection connection = new SqlConnection(connectionString))
+        string connectionString = "Data Source=THEO-COMPUTER\\SQLEXPRESS;Initial Catalog=SeafoodDB;Integrated Security=True";
+
+        [Theory]
+        [InlineData("SELECT Remarks\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nWHERE species.Name = 'Tuna'\r\nORDER BY species.Name DESC;", true)]
+        public void TestSqlCommandOutput(string queryString, bool hasOutput)
         {
-            var command = new SqlCommand(queryString, connection);
-
-            try
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                connection.Open();
-                var reader = command.ExecuteReader();
+                var command = new SqlCommand(queryString, connection);
 
-                Assert.Equal(hasOutput, reader.HasRows);
+                try
+                {
+                    connection.Open();
+                    var reader = command.ExecuteReader();
+
+                    Assert.Equal(hasOutput, reader.HasRows);
+                }
+                finally
+                {
+                    connection.Close();
+                }
             }
-            finally
+        }
+
+        [Fact]
+        public void TestSqlInjection()
+        {
+            string sqlInjectionInput = "SELECT * FROM SecretUserInfoTable";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                connection.Close();
+                try
+                {
+                    QueryCommandsManager queryCommandsManager = new QueryCommandsManager();
+
+                    Assert.Throws<Exception>(() => queryCommandsManager.GetAllSpeciesFullCatchInfoByName(sqlInjectionInput, connection));
+                }
+                finally
+                {
+                    connection.Close();
+                }
             }
         }
     }
 }
+

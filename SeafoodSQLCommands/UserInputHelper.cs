@@ -19,16 +19,16 @@ namespace SeafoodSQLCommands
                     command = queryCommandsManager.GetAllSpecies(connection);
                     break;
                 case "2":
-                    command = queryCommandsManager.GetSpeciesById(GetSpeciesIdFromUser(), connection);
+                    command = queryCommandsManager.GetSpeciesById(GetSpeciesIdFromUser(speciesNamesAndIDs), connection);
                     break;
                 case "3":
                     command = queryCommandsManager.GetAllSpeciesFullCatchInfo(connection);
                     break;
                 case "4":
-                    command = queryCommandsManager.GetAllSpeciesFullCatchInfoByName(GetSpeciesNameFromUser(), connection);
+                    command = queryCommandsManager.GetAllSpeciesFullCatchInfoByName(GetSpeciesNameFromUser(speciesNamesAndIDs), connection);
                     break;
                 case "5":
-                    command = queryCommandsManager.GetSpecificInfoForSpecies(GetSpeciesNameFromUser(), GetSpeciesColumnFromUser(allowedColumnsSection), speciesNamesAndIDs, connection);
+                    command = queryCommandsManager.GetSpecificInfoForSpecies(GetSpeciesNameFromUser(speciesNamesAndIDs), GetSpeciesColumnFromUser(allowedColumnsSection), speciesNamesAndIDs, connection);
                     break;
             }
 
@@ -49,16 +49,34 @@ namespace SeafoodSQLCommands
         }
 
         // Helper methods to get user input for specific queries
-        private static int GetSpeciesIdFromUser()
+        private static int GetSpeciesIdFromUser(Dictionary<string, string> speciesNamesAndIDs)
         {
             Console.Write("Enter the species ID: ");
-            return int.Parse(Console.ReadLine());
+            string speciesId = Console.ReadLine();
+
+            if (speciesNamesAndIDs.ContainsKey(speciesId))
+            {
+                return int.Parse(speciesId);
+            }
+            else
+            {
+                throw new Exception("Invalid Species ID");
+            }
         }
 
-        private static string GetSpeciesNameFromUser()
+        private static string GetSpeciesNameFromUser(Dictionary<string, string> speciesNamesAndIDs)
         {
             Console.Write("Enter the species name: ");
-            return Console.ReadLine();
+            string speciesName = Console.ReadLine();
+
+            if (speciesNamesAndIDs.ContainsValue(speciesName)) 
+            {
+                return speciesName;
+            }
+            else
+            {
+                throw new Exception("Invalid SpeciesName");
+            }
         }
 
         private static string GetSpeciesColumnFromUser(List<string> allowedColumnsSection)

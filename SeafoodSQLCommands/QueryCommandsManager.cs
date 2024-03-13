@@ -37,13 +37,11 @@ namespace SeafoodSQLCommands
 
             if (int.TryParse(name, out var speciesId)) 
             {
-                command = new SqlCommand($"SELECT *\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nWHERE species.SpeciesId = @speciesId\r\nORDER BY species.Name DESC;", connection);
-                command.Parameters.AddWithValue("@speciesId", speciesId);
+                command = new SqlCommand($"SELECT *\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nWHERE species.SpeciesId = {speciesId}\r\nORDER BY species.Name DESC;", connection);
             }
             else
             {
-                command = new SqlCommand($"SELECT *\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nWHERE species.Name = @name\r\nORDER BY species.Name DESC;", connection);
-                command.Parameters.AddWithValue("@name", name);
+                command = new SqlCommand($"SELECT *\r\nFROM SpeciesTable species \r\nINNER JOIN CatchesTable catches ON species.SpeciesId = catches.SpeciesId\r\nWHERE species.Name = {name}\r\nORDER BY species.Name DESC;", connection);
             }
 
             return command;
